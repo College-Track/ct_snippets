@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="foo",
+    name="ct_snippets",
     version="1.0",
     packages=find_packages(),
 )
