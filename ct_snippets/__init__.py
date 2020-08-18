@@ -6,7 +6,7 @@ def copy_style():
     from pkg_resources import resource_string
 
     files = [
-        "styles/example.mplstyle",
+        "college_track.mplstyle",
     ]
 
     for fname in files:
