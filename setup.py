@@ -6,7 +6,7 @@ import atexit
 def _post_install():
     import goosempl
 
-    package_name.copy_style()
+    ct_snippets.copy_style()
 
 
 class new_install(install):
