@@ -1,4 +1,18 @@
 from setuptools import setup, find_packages
+from setuptools.command.install import install
+import atexit
+
+
+def _post_install():
+    import goosempl
+
+    package_name.copy_style()
+
+
+class new_install(install):
+    def __init__(self, *args, **kwargs):
+        super(new_install, self).__init__(*args, **kwargs)
+        atexit.register(_post_install)
 
 
 setup(
@@ -6,37 +20,7 @@ setup(
     version="1.0",
     packages=find_packages(include=["ct_snippets", "ct_snippets.*"]),
     install_requires=["pandas", "simple-salesforce", "matplotlib"],
+    cmdclass={"install": new_install},
+    package_data={"ct_snippets/": ["ct_snippets/college_track.mplstyle",]},
 )
-
-
-# import matplotlib as mpl
-# import glob
-# import os.path
-# import shutil
-# import argparse
-
-# parser = argparse.ArgumentParser()
-# parser.add_argument("-install", action="store_true", default=True)
-# parser.add_argument("-upgrade", action="store_true")
-# options = parser.parse_args()
-
-# # ~ # ref  ->  matplotlib/style/core
-# BASE_LIBRARY_PATH = os.path.join(mpl.get_data_path(), "stylelib")
-# STYLE_PATH = os.path.join(os.getcwd(), "mplstyles")
-# STYLE_EXTENSION = "mplstyle"
-# style_files = glob.glob(os.path.join(STYLE_PATH, "*.%s" % (STYLE_EXTENSION)))
-
-# for _path_file in style_files:
-#     _, fname = os.path.split(_path_file)
-#     dest = os.path.join(BASE_LIBRARY_PATH, fname)
-#     if not os.path.isfile(dest) and options.install:
-#         shutil.copy(_path_file, dest)
-#         print("%s style installed" % (fname))
-#     elif options.upgrade:
-#         shutil.copy(_path_file, dest)
-#         print("%s style upgraded" % (fname))
-#     elif os.path.isfile(dest):
-#         print("%s style already exists (use -upgrade to upgrade)" % (fname))
-#     else:
-#         pass  # ¿?
 
