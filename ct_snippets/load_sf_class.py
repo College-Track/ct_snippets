@@ -16,30 +16,37 @@ class SalesforceData:
         self.name = name
         self.df = None
 
-    def write_csv(self, subfolder=None, append_text=None):
 
+    def generate_file_location(self, subfolder="raw", append_text=None, file_level="parent"):
         if append_text:
             file_name = self.name + append_text+ ".csv"     
         else:
             file_name = self.name +".csv"        
+        
         if subfolder:
-            file_location = Path.cwd().parent / "data" / subfolder / file_name
+            file_location =  "data/" + subfolder + "/" + file_name
         else:
-            file_location = Path.cwd().parent / "data" / file_name
+            file_location =  "data/" + "/" + file_name
+        
+        if file_level == "child":
+            file_path = Path.cwd().parent / file_location
+        elif file_level == 'parent':
+            file_path = Path.cwd() / file_location
+        
+        return file_path
 
-        self.df.to_csv(file_location, index=False)
 
-    def read_file(self, subfolder=None, append_text=None):
-        if append_text:
-            file_name = self.name + append_text + ".csv"     
-        else:
-            file_name = self.name + ".csv"     
-        if subfolder:
-            file_location = Path.cwd().parent / "data" /subfolder / file_name
-        else:
-            file_location = Path.cwd().parent / "data" / file_name
 
-        self.df = pd.read_csv(file_location)
+    def write_csv(self, subfolder='raw', append_text=None, file_level='parent'):
+        file_path = self.generate_file_location(subfolder, append_text, file_level)
+
+        self.df.to_csv(file_path, index=False)
+
+    def read_file(self, subfolder='raw', append_text=None, file_level='parent'):
+        file_path = self.generate_file_location(subfolder, append_text, file_level)
+
+
+        self.df = pd.read_csv(file_path)
     
 
 
