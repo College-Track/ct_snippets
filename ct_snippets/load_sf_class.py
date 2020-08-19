@@ -1,13 +1,14 @@
 import pandas as pd
 from pathlib import Path
 from collections import OrderedDict
+import variables
 
 
 class SalesforceData:
     """Class to govern the general management of Salesforce data
     """
 
-    def __init__(self, name):
+    def __init__(self, name, date_columns=None):
         """[summary]
 
         Args:
@@ -15,39 +16,86 @@ class SalesforceData:
         """
         self.name = name
         self.df = None
+        self.date_columns = None
 
-
-    def generate_file_location(self, subfolder="raw", append_text=None, file_level="parent"):
+    def generate_file_location(
+        self, subfolder="raw", append_text=None, file_level="parent"
+    ):
         if append_text:
-            file_name = self.name + append_text+ ".csv"     
+            file_name = self.name + append_text + ".csv"
         else:
-            file_name = self.name +".csv"        
-        
+            file_name = self.name + ".csv"
+
         if subfolder:
-            file_location =  "data/" + subfolder + "/" + file_name
+            file_location = "data/" + subfolder + "/" + file_name
         else:
-            file_location =  "data/" + "/" + file_name
-        
+            file_location = "data/" + "/" + file_name
+
         if file_level == "child":
             file_path = Path.cwd().parent / file_location
-        elif file_level == 'parent':
+        elif file_level == "parent":
             file_path = Path.cwd() / file_location
-        
+
         return file_path
 
-
-
-    def write_csv(self, subfolder='raw', append_text=None, file_level='parent'):
+    def write_csv(self, subfolder="raw", append_text=None, file_level="parent"):
         file_path = self.generate_file_location(subfolder, append_text, file_level)
 
         self.df.to_csv(file_path, index=False)
 
-    def read_file(self, subfolder='raw', append_text=None, file_level='parent'):
+    def read_file(self, subfolder="raw", append_text=None, file_level="parent"):
         file_path = self.generate_file_location(subfolder, append_text, file_level)
 
-
         self.df = pd.read_csv(file_path)
-    
+
+    def adjust_date(self, format=None, errors="raise"):
+        for column in self.date_columns:
+            self.df[column] = pd.to_datetime(
+                self.df[column], format=format, errors=errors
+            )
+
+    def shorten_site_names(self, site_column):
+        self.df["site_short"] = self.df.loc[:, site_column].str.replace(
+            "College Track ", ""
+        )
+        self.df["site_short"] = self.df.loc[:, "site_short"].str.replace("at ", "")
+
+    def shorten_region_names(self, region_column):
+        self.df["region_short"] = self.df.loc[:, region_column].str.replace(
+            "College Track ", ""
+        )
+        self.df["region_short"] = self.df.loc[:, "region_short"].str.replace(
+            " Region", ""
+        )
+
+    def clean_column_names(self):
+
+        self.df.columns = (
+            df.columns.str.strip()
+            .str.lower()
+            .str.replace(" ", "_")
+            .str.replace("(", "")
+            .str.replace(")", "")
+            .str.replace("-", "_")
+            .str.replace(":", "")
+            .str.replace("<", "less_")
+            .str.replace("=", "")
+            .str.replace(".", "")
+        )
+
+    def abbreviate_site_names(
+        self, site_column, site_abbreviations=variables.site_abbreviations
+    ):
+        self.df["site_abrev"] = self.df.apply(
+            lambda x: site_abbreviations[x[site_column]], axis=1,
+        )
+
+    def abbreviate_region_names(
+        self, region_column, region_abbreviations=variables.region_abbreviations
+    ):
+        self.df["region_abrev"] = self.df.apply(
+            lambda x: region_abbreviations[x[region_column]], axis=1,
+        )
 
 
 class SF_SOQL(SalesforceData):
@@ -60,8 +108,6 @@ class SF_SOQL(SalesforceData):
         array_dicts = SF_SOQL.transform_sf_result_set_rec(dict_results["records"])
         _df = pd.DataFrame(array_dicts)
         self.df = _df
-    
-
 
     @staticmethod
     def recursive_walk(od_field: OrderedDict, field_name=None):
@@ -105,8 +151,6 @@ class SF_SOQL(SalesforceData):
             d = SF_SOQL.recursive_walk(res)
             data.append(d)
         return data
-
-
 
 
 class SF_Report(SalesforceData):
