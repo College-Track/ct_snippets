@@ -1,7 +1,7 @@
 import pandas as pd
 from pathlib import Path
 from collections import OrderedDict
-import variables
+import ct_snippets.variables
 
 
 class SalesforceData:
