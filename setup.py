@@ -19,7 +19,7 @@ setup(
     name="ct_snippets",
     version="1.0",
     packages=find_packages(include=["ct_snippets", "ct_snippets.*"]),
-    install_requires=["pandas", "simple-salesforce", "matplotlib"],
+    install_requires=["pandas", "simple-salesforce", "matplotlib", "reportforce"],
     cmdclass={"install": new_install},
     package_data={"ct_snippets": ["ct_snippets/college_track.mplstyle",]},
 )
