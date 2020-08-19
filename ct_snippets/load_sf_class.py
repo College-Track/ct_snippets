@@ -19,9 +19,9 @@ class SalesforceData:
     def write_csv(self, subfolder=None, append_text=None):
 
         if append_text:
-            file_name = self.name + append_text
+            file_name = self.name + append_text+ ".csv"     
         else:
-            file_name = self.name        
+            file_name = self.name +".csv"        
         if subfolder:
             file_location = Path.cwd().parent / "data" / subfolder / file_name
         else:
@@ -31,9 +31,9 @@ class SalesforceData:
 
     def read_file(self, subfolder=None, append_text=None):
         if append_text:
-            file_name = self.name + append_text
+            file_name = self.name + append_text + ".csv"     
         else:
-            file_name = self.name
+            file_name = self.name + ".csv"     
         if subfolder:
             file_location = Path.cwd().parent / "data" /subfolder / file_name
         else:
