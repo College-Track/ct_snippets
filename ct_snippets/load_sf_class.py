@@ -19,12 +19,12 @@ class SalesforceData:
         self.date_columns = None
 
     def generate_file_location(
-        self, subfolder="raw", append_text=None, file_level="parent"
+        self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
     ):
         if append_text:
-            file_name = self.name + append_text + ".csv"
+            file_name = self.name + append_text + file_type
         else:
-            file_name = self.name + ".csv"
+            file_name = self.name + file_type
 
         if subfolder:
             file_location = "data/" + subfolder + "/" + file_name
@@ -38,13 +38,21 @@ class SalesforceData:
 
         return file_path
 
-    def write_csv(self, subfolder="raw", append_text=None, file_level="parent"):
-        file_path = self.generate_file_location(subfolder, append_text, file_level)
+    def write_file(
+        self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
+    ):
+        file_path = self.generate_file_location(
+            subfolder, append_text, file_level, file_type
+        )
 
         self.df.to_csv(file_path, index=False)
 
-    def read_file(self, subfolder="raw", append_text=None, file_level="parent"):
-        file_path = self.generate_file_location(subfolder, append_text, file_level)
+    def read_file(
+        self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
+    ):
+        file_path = self.generate_file_location(
+            subfolder, append_text, file_level, file_type
+        )
 
         self.df = pd.read_csv(file_path)
 
