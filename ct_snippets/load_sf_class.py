@@ -44,8 +44,10 @@ class SalesforceData:
         file_path = self.generate_file_location(
             subfolder, append_text, file_level, file_type
         )
-
-        self.df.to_csv(file_path, index=False)
+        if file_type == ".csv":
+            self.df.to_csv(file_path, index=False)
+        elif file_type == ".pkl":
+            self.df.to_pickle(file_path)
 
     def read_file(
         self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
@@ -54,7 +56,10 @@ class SalesforceData:
             subfolder, append_text, file_level, file_type
         )
 
-        self.df = pd.read_csv(file_path)
+        if file_type == ".csv":
+            self.df = pd.read_csv(file_path)
+        elif file_type == ".pkl":
+            self.df = pd.read_pickle(file_path)
 
     def adjust_date(self, format=None, errors="raise"):
         for column in self.date_columns:
