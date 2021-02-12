@@ -19,7 +19,7 @@ class SalesforceData:
         self.date_columns = None
 
     def generate_file_location(
-        self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
+        self, subfolder="raw", append_text=None, file_type=".csv"
     ):
         if append_text:
             file_name = self.name + append_text + file_type
@@ -29,32 +29,23 @@ class SalesforceData:
         if subfolder:
             file_location = "data/" + subfolder + "/" + file_name
         else:
-            file_location = "data/" + "/" + file_name
-
-        if file_level == "child":
-            file_path = Path.cwd().parent / file_location
-        elif file_level == "parent":
+            file_location = "data/" + file_name
+        if (Path.cwd() / "data/").exists():
             file_path = Path.cwd() / file_location
+        else:
+            file_path = Path.cwd().parent / file_location
 
         return file_path
 
-    def write_file(
-        self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
-    ):
-        file_path = self.generate_file_location(
-            subfolder, append_text, file_level, file_type
-        )
+    def write_file(self, subfolder="raw", append_text=None, file_type=".csv"):
+        file_path = self.generate_file_location(subfolder, append_text, file_type)
         if file_type == ".csv":
             self.df.to_csv(file_path, index=False)
         elif file_type == ".pkl":
             self.df.to_pickle(file_path)
 
-    def read_file(
-        self, subfolder="raw", append_text=None, file_level="parent", file_type=".csv"
-    ):
-        file_path = self.generate_file_location(
-            subfolder, append_text, file_level, file_type
-        )
+    def read_file(self, subfolder="raw", append_text=None, file_type=".csv"):
+        file_path = self.generate_file_location(subfolder, append_text, file_type)
 
         if file_type == ".csv":
             self.df = pd.read_csv(file_path)
