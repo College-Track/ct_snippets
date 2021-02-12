@@ -10,6 +10,7 @@ site_abbreviations = {
     "College Track Denver": "DEN",
     "College Track at The Durant Center": "PGC",
     "College Track Ward 8": "WARD 8",
+    "College Track Crenshaw": "CREN",
 }
 
 
