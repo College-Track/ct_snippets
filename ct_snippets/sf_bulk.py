@@ -2,7 +2,9 @@ from simple_salesforce import Salesforce
 import pandas as pd
 
 
-def sf_bulk_handler(sf_object, data, sf, batch_size=10000, bulk_type="update"):
+def sf_bulk_handler(
+    sf_object, data, sf, batch_size=10000, bulk_type="update", use_serial=False
+):
     """Manages the upload process specified by user.
 
     Args:
@@ -17,12 +19,14 @@ def sf_bulk_handler(sf_object, data, sf, batch_size=10000, bulk_type="update"):
         [list]: [a list of status for each record being updated or created.]
     """
     results = getattr(sf.bulk.__getattr__(sf_object), bulk_type)(
-        data=data, batch_size=batch_size
+        data=data, batch_size=batch_size, use_serial=False
     )
     return results
 
 
-def sf_bulk(df, sf_object, data, sf, batch_size=10000, bulk_type="update"):
+def sf_bulk(
+    sf_object, data, sf, batch_size=10000, bulk_type="update", use_serial=False
+):
     """[summary]
 
     Args:
@@ -42,28 +46,16 @@ def sf_bulk(df, sf_object, data, sf, batch_size=10000, bulk_type="update"):
 
     try:
         results = sf_bulk_handler(
-            sf_object, data, sf, batch_size=10000, bulk_type=bulk_type
+            sf_object, data, sf, batch_size=10000, bulk_type=bulk_type, use_serial=False
         )
 
         results_df = pd.DataFrame(results)
 
-        df_with_status = pd.concat([df, results_df], axis=1)
-
-        success_df = df_with_status[df_with_status["success"] == True]
-
-        fail_df = df_with_status[df_with_status["success"] == False]
-
-        status = "success"
-
-        return success_df, fail_df
-    except:
-        failures = df.merge(pd.DataFrame(data), left_index=True, right_index=True)
-
-        success_df = pd.DataFrame()
-        fail_df = pd.DataFrame()
-        results_df = pd.DataFrame()
-        status = "failed"
-        return success_df, fail_df
+        return results_df
+    except ValueError:
+        print(
+            "Oops, something went wrong. Check the Data file to confirm the input is valid"
+        )
 
 
 def generate_data_dict(df, data_dict):
@@ -89,3 +81,29 @@ def generate_data_dict(df, data_dict):
 
     return _df[all_field_names].to_dict(orient="records")
 
+
+def process_bulk_results(results_df, df):
+    """Takes the results from a bulk operation returns details of the opperations
+
+    Args:
+        results_df: the results dataframe
+        df ([type]): [the data frame used in the upload]
+
+    """
+
+    len_success = len(results_df[results_df.success == True])
+    len_failure = len(results_df[results_df.success == False])
+
+    message = """
+    You attempted to process {num_records} records.\n
+    {len_success} records were successfully processed.\n 
+    {len_failure} records failed to process.
+    """.format(
+        num_records=len(df), len_success=len_success, len_failure=len_failure
+    )
+
+    print(message)
+    if len_failure > 0:
+        df_with_status = pd.concat([df, results_df], axis=1)
+        fail_df = df_with_status[df_with_status["success"] == False]
+        return fail_df
