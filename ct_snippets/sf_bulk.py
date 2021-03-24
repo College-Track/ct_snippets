@@ -120,7 +120,7 @@ class SF_Bulk:
 
         self.upload_df = pd.concat([self.df, results_df], axis=1)
         if len_failure > 0:
-            self.fail_df = df_with_status[df_with_status["success"] == False]
+            self.fail_df = self.upload_df[self.upload_df["success"] == False]
 
     def process_segmented_upload(self, segment_size, **kwargs):
         list_of_results = []
